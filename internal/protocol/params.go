@@ -130,7 +130,7 @@ const MinPacingDelay = time.Millisecond
 const DefaultConnectionIDLength = 4
 
 // MaxActiveConnectionIDs is the number of connection IDs that we're storing.
-const MaxActiveConnectionIDs = 4
+const MaxActiveConnectionIDs = 40
 
 // MaxIssuedConnectionIDs is the maximum number of connection IDs that we're issuing at the same time.
 const MaxIssuedConnectionIDs = 6
@@ -147,7 +147,7 @@ const AckDelayExponent = 3
 const TimerGranularity = time.Millisecond
 
 // MaxAckDelay is the maximum time by which we delay sending ACKs.
-const MaxAckDelay = 25 * time.Millisecond
+const MaxAckDelay = 250 * time.Millisecond
 
 // MaxAckDelayInclGranularity is the max_ack_delay including the timer granularity.
 // This is the value that should be advertised to the peer.
