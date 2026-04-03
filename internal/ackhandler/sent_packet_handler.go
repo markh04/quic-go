@@ -25,8 +25,6 @@ const (
 	amplificationFactor = 3
 	// We use Retry packets to derive an RTT estimate. Make sure we don't set the RTT to a super low value yet.
 	minRTTAfterRetry = 5 * time.Millisecond
-	// The PTO duration uses exponential backoff, but is truncated to a maximum value, as allowed by RFC 8961, section 4.4.
-	maxPTODuration = 60 * time.Second
 )
 
 // Path probe packets are declared lost after this time.
@@ -111,6 +109,9 @@ type sentPacketHandler struct {
 	qlogger     qlogwriter.Recorder
 	lastMetrics qlog.MetricsUpdated
 	logger      utils.Logger
+
+	// The PTO duration uses exponential backoff, but is truncated to a maximum value, as allowed by RFC 8961, section 4.4.
+	maxPTODuration time.Duration
 }
 
 var _ SentPacketHandler = &sentPacketHandler{}
@@ -128,6 +129,7 @@ func NewSentPacketHandler(
 	pers protocol.Perspective,
 	qlogger qlogwriter.Recorder,
 	logger utils.Logger,
+	maxPTODuration time.Duration,
 ) SentPacketHandler {
 	congestion := congestion.NewCubicSender(
 		congestion.DefaultClock{},
@@ -152,6 +154,7 @@ func NewSentPacketHandler(
 		perspective:                    pers,
 		qlogger:                        qlogger,
 		logger:                         logger,
+		maxPTODuration:                 maxPTODuration,
 	}
 	if enableECN {
 		h.enableECN = true
@@ -636,8 +639,8 @@ func (h *sentPacketHandler) getLossTimeAndSpace() (monotime.Time, protocol.Encry
 
 func (h *sentPacketHandler) getScaledPTO(includeMaxAckDelay bool) time.Duration {
 	pto := h.rttStats.PTO(includeMaxAckDelay) << h.ptoCount
-	if pto > maxPTODuration || pto <= 0 {
-		return maxPTODuration
+	if pto > h.maxPTODuration || pto <= 0 {
+		return h.maxPTODuration
 	}
 	return pto
 }

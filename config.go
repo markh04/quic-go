@@ -45,6 +45,9 @@ func validateConfig(config *Config) error {
 	if config.InitialPacketSize > protocol.MaxPacketBufferSize {
 		config.InitialPacketSize = protocol.MaxPacketBufferSize
 	}
+	if config.MaxPTODuration < protocol.Min_MaxPTODuration {
+		config.MaxPTODuration = protocol.Min_MaxPTODuration
+	}
 	// check that all QUIC versions are actually supported
 	for _, v := range config.Versions {
 		if !protocol.IsValidVersion(v) {
@@ -104,6 +107,10 @@ func populateConfig(config *Config) *Config {
 	if initialPacketSize == 0 {
 		initialPacketSize = protocol.InitialPacketSize
 	}
+	maxPTODuration := config.MaxPTODuration
+	if maxPTODuration == 0 {
+		maxPTODuration = protocol.Default_MaxPTODuration
+	} 
 
 	return &Config{
 		GetConfigForClient:               config.GetConfigForClient,
@@ -125,5 +132,6 @@ func populateConfig(config *Config) *Config {
 		EnableStreamResetPartialDelivery: config.EnableStreamResetPartialDelivery,
 		Allow0RTT:                        config.Allow0RTT,
 		Tracer:                           config.Tracer,
+		MaxPTODuration:                   maxPTODuration,
 	}
 }

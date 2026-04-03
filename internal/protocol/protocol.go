@@ -157,3 +157,9 @@ const InvalidPacketLimitAES = 1 << 52
 
 // InvalidPacketLimitChaCha is the maximum number of packets that we can fail to decrypt when using AEAD_CHACHA20_POLY1305.
 const InvalidPacketLimitChaCha = 1 << 36
+
+// The mimimum value of maxPTODuration
+const Min_MaxPTODuration = 1 * time.Second
+
+// The default value of maxPTODuration
+const Default_MaxPTODuration = 60 * time.Second
